@@ -1,139 +1,110 @@
-# 💻 Projeto 03: Provisionando Infraestrutura AWS via CLI (Linha de Comando)
+# Projeto 03 - Provisionamento de Infraestrutura na AWS via CLI
 
-<div align="center">
+#### OBJETIVO
+Provisionar uma infraestrutura básica na AWS utilizando exclusivamente a linha de comando, compreendendo a relação e dependência entre os recursos de rede e computação dentro da nuvem.
 
-![AWS](https://img.shields.io/badge/AWS-CLI-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
-![VPC](https://img.shields.io/badge/AWS-VPC-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)
-![EC2](https://img.shields.io/badge/AWS-EC2-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
-![PowerShell](https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
-![Status](https://img.shields.io/badge/Status-CONCLUÍDO-1a9c3e?style=for-the-badge)
+_O laboratório foi executado no ambiente sandbox do programa AWS re/Start, realizando a criação dos recursos manualmente para compreender cada etapa do processo de configuração._
 
-</div>
+#### SERVIÇOS UTILIZADOS
+* Amazon VPC
+* Amazon EC2
+* Internet Gateway
+* Route Tables
+* Security Groups
+* AWS CLI
+* PowerShell
+* PuTTY
 
----
+#### IMPLEMENTAÇÃO
+Toda a infraestrutura foi provisionada utilizando AWS CLI no PowerShell, sem utilização da console da AWS.
 
-## 🎯 Objetivo
+Etapas realizadas:
+1. Criação de uma VPC dedicada, sem utilizar a VPC default.
+2. Criação de uma subnet pública dentro da VPC.
+3. Criação de um Internet Gateway e associação à VPC.
+4. Criação de uma Route Table.
+5. Criação de uma rota para acesso à internet (0.0.0.0/0) apontando para o Internet Gateway.
+6. Associação da Route Table à subnet pública, permitindo tráfego externo.
+7. Criação de Security Groups com regra permitindo acesso SSH (porta 22).
+8. Lançamento de uma instância Amazon EC2 utilizando Amazon Linux.
+9. Associação da instância à subnet e ao Security Group configurado.
+10. Execução de comando via CLI para obter o endereço IP público da instância.
+11. Validação da conectividade com acesso remoto via SSH.
 
-Provisionar uma infraestrutura básica na AWS utilizando exclusivamente a linha de comando (**AWS CLI**), compreendendo a relação e dependência entre os recursos de rede e computação dentro da nuvem. 
+##### ACESSO E VALIDAÇÃO
 
-O laboratório foi executado no ambiente sandbox do programa **AWS re/Start**, realizando a criação dos recursos manualmente para compreender cada etapa do processo de configuração de forma granular.
+Após a criação da infraestrutura, foi realizada a conexão remota com a instância EC2 para validar o funcionamento da rede e das regras de segurança.
 
----
+Formas de acesso utilizadas:
 
-## 🛠️ Serviços Utilizados
+* Conexão SSH via PowerShell utilizando chave .pem (OpenSSH)
+* Conexão SSH via PuTTY utilizando chave .ppk
 
-| Serviço | Função |
-|---|---|
-| **Amazon VPC** | Rede virtual isolada na AWS |
-| **Amazon EC2** | Instância de servidor virtual (Amazon Linux) |
-| **Internet Gateway** | Conectividade entre a VPC e a internet |
-| **Route Tables** | Controle de tráfego e roteamento da rede |
-| **Security Groups** | Firewall virtual para permissão de acesso SSH |
-| **AWS CLI** | Interface de linha de comando para provisionamento |
-| **PowerShell** | Terminal para execução dos comandos e SSH |
+Esses testes confirmaram a correta configuração da infraestrutura e a comunicação entre os recursos criados.
 
----
+#### ARQUITETURA DA SOLUÇÃO
 
-## 🏗️ Arquitetura da Solução
+_A infraestrutura foi projetada utilizando uma VPC dedicada com subnet pública conectada à internet por meio de um Internet Gateway.
+Uma instância EC2 com Amazon Linux foi implantada dentro da subnet e protegida por um Security Group permitindo acesso SSH.
+O acesso administrativo foi realizado via SSH utilizando PowerShell (OpenSSH) e PuTTY._
 
-A infraestrutura foi projetada utilizando uma **VPC dedicada** (não-default) com uma **subnet pública** conectada à internet por meio de um **Internet Gateway**. Uma instância EC2 com Amazon Linux foi implantada dentro desta subnet e protegida por um **Security Group** permitindo acesso SSH (porta 22). O acesso administrativo foi validado via terminal.
+#### EVIDÊNCIA
+Acessar pasta de evidencias para screenshots do projeto.
 
-```text
-Internet
-    |
-    | Porta 22 (SSH)
-    ▼
-┌──────────────────────────────┐
-│       Internet Gateway       │
-└──────────────────────────────┘
-    |
-    ▼
-┌──────────────────────────────────────────────┐
-│             VPC (10.0.0.0/16)                │
-│                                              │
-│  ┌────────────────────────────────────────┐  │
-│  │       Subnet Pública (10.0.1.0/24)     │  │
-│  │                                        │  │
-│  │  ┌──────────────────────────────────┐  │  │
-│  │  │      Security Group (SSH)        │  │  │
-│  │  └──────────────────────────────────┘  │  │
-│  │  ┌──────────────────────────────────┐  │  │
-│  │  │   Amazon EC2 (Amazon Linux)      │  │  │
-│  │  └──────────────────────────────────┘  │  │
-│  └────────────────────────────────────────┘  │
-│                                              │
-│  Route Table → 0.0.0.0/0 → IGW               │
-└──────────────────────────────────────────────┘
 
-📋 Etapas de Implementação
-Toda a infraestrutura foi provisionada utilizando AWS CLI no PowerShell, sem utilização do console da AWS:
-
-Criação da VPC: Definição de uma rede isolada 10.0.0.0/16.
-
-Subnet Pública: Criação de uma subnet específica para recursos com acesso externo.
-
-Internet Gateway: Criação e associação do IGW à VPC para habilitar saída para internet.
-
-Tabela de Rotas: Criação de uma Route Table personalizada.
-
-Roteamento: Configuração da rota padrão (0.0.0.0/0) apontando para o Internet Gateway.
-
-Associação de Rede: Vinculação da Route Table à Subnet pública.
-
-Segurança: Criação de um Security Group e configuração da regra de entrada para SSH (Porta 22).
-
-Launch EC2: Lançamento da instância associando VPC, Subnet e SG via IDs gerados na CLI.
-
-⌨️ Comandos Utilizados
-bash
-# 1. Criar VPC
+#### COMANDOS UTILIZADOS
+```bash
+# Criar VPC
 aws ec2 create-vpc --cidr-block 10.0.0.0/16
 
-# 2. Criar subnet pública
-aws ec2 create-subnet --vpc-id vpc-08cfaca6d74f943e2 --cidr-block 10.0.1.0/24
+# Criar subnet pública
+aws ec2 create-subnet \
+--vpc-id vpc-08cfaca6d74f943e2 \
+--cidr-block 10.0.1.0/24
 
-# 3. Criar e Associar Internet Gateway
+# Criar Internet Gateway
 aws ec2 create-internet-gateway
-aws ec2 attach-internet-gateway --internet-gateway-id igw-0a5deee9519b89ae8 --vpc-id vpc-08cfaca6d74f943e2
 
-# 4. Criar tabela de roteamento e rota para internet
-aws ec2 create-route-table --vpc-id vpc-08cfaca6d74f943e2
-aws ec2 create-route --route-table-id rtb-04fb10c03f3271a4c --destination-cidr-block 0.0.0.0/0 --gateway-id igw-0a5deee9519b89ae8
+# Associar Internet Gateway à VPC
+aws ec2 attach-internet-gateway \
+--internet-gateway-id igw-0a5deee9519b89ae8 \
+--vpc-id vpc-08cfaca6d74f943e2
 
-# 5. Associar tabela de rotas à subnet
-aws ec2 associate-route-table --route-table-id rtb-04fb10c03f3271a4c --subnet-id subnet-091fca42df094adb1
+# Criar tabela de roteamento
+aws ec2 create-route-table \
+--vpc-id vpc-08cfaca6d74f943e2
 
-# 6. Criar Security Group e regra SSH
-aws ec2 create-security-group --group-name meusegurancalab --description "acesso ssh" --vpc-id vpc-08cfaca6d74f943e2
-aws ec2 authorize-security-group-ingress --group-id sg-051e70cb2f606cfd9 --protocol tcp --port 22 --cidr 0.0.0.0/0
+# Criar rota para acesso à internet
+aws ec2 create-route \
+--route-table-id rtb-04fb10c03f3271a4c \
+--destination-cidr-block 0.0.0.0/0 \
+--gateway-id igw-0a5deee9519b89ae8
 
-# 7. Consultar informações e IP Público da instância
-aws ec2 describe-instances --query "Reservations[*].Instances[*].{ID:InstanceId,Estado:State
+# Associar tabela de rotas à subnet
+aws ec2 associate-route-table \
+--route-table-id rtb-04fb10c03f3271a4c \
+--subnet-id subnet-091fca42df094adb1
 
-🔑 Acesso e Validação
-Após o provisionamento, a conectividade foi validada através de acesso remoto SSH:
+# Criar Security Group
+aws ec2 create-security-group \
+--group-name meusegurancalab \
+--description "acesso ssh" \
+--vpc-id vpc-08cfaca6d74f943e2
 
-Conexão via PowerShell: Utilizando OpenSSH nativo com chave .pem.
+# Criar regra de entrada para SSH
+aws ec2 authorize-security-group-ingress \
+--group-id sg-051e70cb2f606cfd9 \
+--protocol tcp \
+--port 22 \
+--cidr 0.0.0.0/0
 
-Conexão via PuTTY: Utilizando chave .ppk convertida.
+# Consultar informações da instância
+aws ec2 describe-instances \
+--query "Reservations[*].Instances[*].{ID:InstanceId,Estado:State.Name,IP_Publico:PublicIpAddress}" \
+--output table
+```
 
-A correta configuração das tabelas de rotas e do Security Group foi confirmada pelo sucesso no handshake SSH e login no sistema operacional Amazon Linux.
+#### APRENDIZADO
 
-📸 Evidências
-Screenshots disponíveis na pasta /evidencias.
-
-💡 Aprendizado
-Compreensão prática do provisionamento de infraestrutura utilizando AWS CLI.
-
-Entendimento sobre dependência rigorosa entre recursos (ex.: não é possível deletar uma VPC com IGW associado).
-
-Prática de filtragem de dados em JSON/Table utilizando o parâmetro --query.
-
-Consolidação da habilidade de gerenciar acessos remotos seguros, essencial para administração de servidores em nuvem.
-
-🔗 Portfólio
-📁 Voltar ao Portfólio Principal
-
-<div align="center">Marcelo Carrara · Aspiring Solutions Architect · Paraná, Brasil</div>
-
-Código
+_Este laboratório permitiu compreender na prática o provisionamento de infraestrutura utilizando AWS CLI, além de reforçar o entendimento sobre a dependência entre os recursos de rede na AWS, como VPC, Internet Gateway e tabelas de roteamento.
+Também possibilitou praticar a configuração de acesso remoto seguro via SSH em instâncias Linux, utilizando tanto o OpenSSH no PowerShell com chave .pem quanto o PuTTY com chave .ppk, validando a conectividade da infraestrutura criada._
