@@ -64,3 +64,76 @@ Internet
 │                                              │
 │  Route Table → 0.0.0.0/0 → IGW               │
 └──────────────────────────────────────────────┘
+
+📋 Etapas de Implementação
+Toda a infraestrutura foi provisionada utilizando AWS CLI no PowerShell, sem utilização do console da AWS:
+
+Criação da VPC: Definição de uma rede isolada 10.0.0.0/16.
+
+Subnet Pública: Criação de uma subnet específica para recursos com acesso externo.
+
+Internet Gateway: Criação e associação do IGW à VPC para habilitar saída para internet.
+
+Tabela de Rotas: Criação de uma Route Table personalizada.
+
+Roteamento: Configuração da rota padrão (0.0.0.0/0) apontando para o Internet Gateway.
+
+Associação de Rede: Vinculação da Route Table à Subnet pública.
+
+Segurança: Criação de um Security Group e configuração da regra de entrada para SSH (Porta 22).
+
+Launch EC2: Lançamento da instância associando VPC, Subnet e SG via IDs gerados na CLI.
+
+⌨️ Comandos Utilizados
+bash
+# 1. Criar VPC
+aws ec2 create-vpc --cidr-block 10.0.0.0/16
+
+# 2. Criar subnet pública
+aws ec2 create-subnet --vpc-id vpc-08cfaca6d74f943e2 --cidr-block 10.0.1.0/24
+
+# 3. Criar e Associar Internet Gateway
+aws ec2 create-internet-gateway
+aws ec2 attach-internet-gateway --internet-gateway-id igw-0a5deee9519b89ae8 --vpc-id vpc-08cfaca6d74f943e2
+
+# 4. Criar tabela de roteamento e rota para internet
+aws ec2 create-route-table --vpc-id vpc-08cfaca6d74f943e2
+aws ec2 create-route --route-table-id rtb-04fb10c03f3271a4c --destination-cidr-block 0.0.0.0/0 --gateway-id igw-0a5deee9519b89ae8
+
+# 5. Associar tabela de rotas à subnet
+aws ec2 associate-route-table --route-table-id rtb-04fb10c03f3271a4c --subnet-id subnet-091fca42df094adb1
+
+# 6. Criar Security Group e regra SSH
+aws ec2 create-security-group --group-name meusegurancalab --description "acesso ssh" --vpc-id vpc-08cfaca6d74f943e2
+aws ec2 authorize-security-group-ingress --group-id sg-051e70cb2f606cfd9 --protocol tcp --port 22 --cidr 0.0.0.0/0
+
+# 7. Consultar informações e IP Público da instância
+aws ec2 describe-instances --query "Reservations[*].Instances[*].{ID:InstanceId,Estado:State
+
+🔑 Acesso e Validação
+Após o provisionamento, a conectividade foi validada através de acesso remoto SSH:
+
+Conexão via PowerShell: Utilizando OpenSSH nativo com chave .pem.
+
+Conexão via PuTTY: Utilizando chave .ppk convertida.
+
+A correta configuração das tabelas de rotas e do Security Group foi confirmada pelo sucesso no handshake SSH e login no sistema operacional Amazon Linux.
+
+📸 Evidências
+Screenshots disponíveis na pasta /evidencias.
+
+💡 Aprendizado
+Compreensão prática do provisionamento de infraestrutura utilizando AWS CLI.
+
+Entendimento sobre dependência rigorosa entre recursos (ex.: não é possível deletar uma VPC com IGW associado).
+
+Prática de filtragem de dados em JSON/Table utilizando o parâmetro --query.
+
+Consolidação da habilidade de gerenciar acessos remotos seguros, essencial para administração de servidores em nuvem.
+
+🔗 Portfólio
+📁 Voltar ao Portfólio Principal
+
+<div align="center">Marcelo Carrara · Aspiring Solutions Architect · Paraná, Brasil</div>
+
+Código
